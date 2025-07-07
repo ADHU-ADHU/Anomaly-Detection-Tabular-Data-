@@ -9,9 +9,13 @@ Implementation of deep learning models for anomaly detection in industrial equip
 - Three distinct deep learning approaches for anomaly detection
 - Specialized β-VAE variants addressing latent collapse
 - Adaptation of GANomaly (image-based) to tabular sensor data
-- Comprehensive evaluation with ROC/PR curves
+- Comprehensive evaluation with ROC/PRC 
 
 ## Models Implemented
 1. **Autoencoder** - Baseline reconstruction-based anomaly detection
 2. **β-VAE** - Two variants focusing on reconstruction vs KL divergence
 3. **GANomaly** - Adversarial approach with latent space comparison
+
+## Future Work
+- Incorporation of temporal features
+- Hyperparameter optimization
