@@ -97,6 +97,11 @@ Anomaly detection often involves computing a reconstruction error or latent spac
   **Reconstruction Error Plots:** Helps visually identify when a model starts to fail at reconstructing the input signal. Spikes in reconstruction error correspond to potential anomalies, box plots helps to identify a suitable threshold
   **Latent Space Visualization (t-SNE / UMAP): ** Techniques like t-SNE and [UMAP](https://umap-learn.readthedocs.io/en/latest/) are used to project high-dimensional latent representations into 2D or 3D space. it shows Separation between normal and anomalous samples in the learned latent space. Whether the model forms tight clusters (normal) and separates out anomalies. In VAE with appropriate Beta value and max itteration of the algorithm it is possible to obtaine a smooth latent cluster for normal data.
 
+  Due to the large size of the data only a selected amount were sampled out of Normal train, Normal test and anomaly data for visualisation
+
+  ![newplot](https://github.com/user-attachments/assets/20bc1c21-c028-468c-ad1d-5999261b287c)
+
+
   
 ## Future Work
 - Incorporation of temporal features
