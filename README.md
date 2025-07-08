@@ -25,7 +25,7 @@ The dataset used in this notebook is loaded from a MATLAB file (train.mat) and c
 ### Task:
 The task is anomaly detection, where the goal is to train a model to distinguish between normal and anomalous trajectories, while training only with the normal data. The project focuses on predicting the first entry time into abnormal states for each of the four components in 50 test systems, using sensor data converted into a tabular format.
 
-
+In a typical industrial setting, the available quantity of good/normal data is quite often numerous than fault / anomaly data, hence a classification model would not be the most relaibale as it would be biased toward the majority trained data, moreover if may still output a predection for a data sample it was not trained on. 
 
 ## Models Implemented
 1. **Autoencoder** - Baseline reconstruction-based anomaly detection
