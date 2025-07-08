@@ -37,14 +37,14 @@ The task is anomaly detection, where the goal is to train a model to distinguish
 
 ## Autoencoders
 An autoencoder is a type of neural network that learns to compress (encode) input data into a lower-dimensional latent space and then reconstruct (decode) it back to the original form. It consists of two main parts:
-     **Encoder:** Reduces input data into a compact latent representation.
-     **Decoder:** Reconstructs the original data from the latent representation.
+**Encoder:** Reduces input data into a compact latent representation.
+**Decoder:** Reconstructs the original data from the latent representation.
 
 Autoencoders are trained to minimize reconstruction error (e.g., Mean Squared Error) between input and output, forcing them to learn efficient representations of normal data.
 Since autoencoders are trained on normal data, they learn to reconstruct it well but perform poorly on anomalous data. Anomaly detection works as follows:
-     - Train the autoencoder only on normal data.
-     - Compute the reconstruction error for new data.
-     - If the error exceeds a threshold, classify the sample as an anomaly.
+- Train the autoencoder only on normal data.
+- Compute the reconstruction error for new data.
+- If the error exceeds a threshold, classify the sample as an anomaly.
 
 ### Advantages:
    - Unsupervised (no labeled anomalies needed).
