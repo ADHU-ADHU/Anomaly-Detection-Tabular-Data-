@@ -101,6 +101,9 @@ Anomaly detection often involves computing a reconstruction error or latent spac
 
   ![newplot](https://github.com/user-attachments/assets/20bc1c21-c028-468c-ad1d-5999261b287c)
 
+  [Umap visaulisaiton of latent space]![newplot1](https://github.com/user-attachments/assets/c53020e1-d695-4ff1-9e2c-14161fabd3ce)
+
+
 
   
 ## Future Work
