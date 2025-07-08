@@ -61,7 +61,7 @@ The Beta-VAE modifies the VAE by introducing a β hyperparameter to explicitly c
 **Standard VAE:** Balances reconstruction loss and KL-divergence (which regularizes the latent space).
 **Beta-VAE:** Strengthens the effect of KL-divergence by scaling it with β (β > 1 enforces stronger regularization).
 
-Like standard autoencoders, anomalies have higher reconstruction errors. Anomalies may lie in low-probability regions of the latent distribution, further the latent space can be explored to detect anomalies.
+Like standard autoencoders, anomalies have higher reconstruction errors. Anomalies may lie in low-probability regions of the latent distribution, further the latent space can be explored to detect anomalies. In this projects the latent space of the normal data where trained to fit GMM, KDE, mahanalobis distance and One class -SVM.
 
 ## GANomaly: GAN-Based Anomaly Detection
 GANomaly is a Generative Adversarial Network (GAN) variant designed for anomaly detection. It consists of:
@@ -71,6 +71,8 @@ GANomaly is a Generative Adversarial Network (GAN) variant designed for anomaly 
 **Discriminator:** Tries to distinguish between real and reconstructed data.
 
 **Encoder:** This second encoder maps the reconstructed data back to latent space (used for anomaly scoring).
+
+The model used in this project is addapted for training tabular data
 
 ## 📈 Model Evaluation
 Evaluating anomaly detection models, especially in highly imbalanced settings (like predictive maintenance), requires more than just accuracy. This project uses:
