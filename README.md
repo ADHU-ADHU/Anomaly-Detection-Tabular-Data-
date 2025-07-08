@@ -3,7 +3,7 @@
 This work is course project of the standalone masters course Machine learning for Predictive Maintenance 
 
 ## Project Description
-Implementation of deep learning models for anomaly detection in industrial equipment using the Aramis Challenge dataset. Developed Autoencoder, Variational Autoencoder (β-VAE), and GANomaly architectures to identify component degradation.
+Implementation of deep learning models for anomaly detection in industrial equipment using the [Aramis Challenge dataset](https://aramis3d.com/index.php/innovation-challenges/). Developed Autoencoder, Variational Autoencoder (β-VAE), and GANomaly architectures to identify component failure.
 
 ## Key Features
 - Three distinct deep learning approaches for anomaly detection
