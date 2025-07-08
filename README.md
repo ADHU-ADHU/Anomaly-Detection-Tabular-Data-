@@ -86,6 +86,17 @@ Anomaly detection often involves computing a reconstruction error or latent spac
 - ROC or PRC curves
 - F1-maximization
 - Percentile of reconstruction errors from validation data
+
+## Visualization & Interpretability
+  Visualization is essential in this project for:
+  - Exploring the latent space learned by models
+  - Analyzing how well reconstructions match inputs
+  - Understanding where and how anomalies are detected
+  - Evaluating performance through ROC/PR curves
+ 
+  **Reconstruction Error Plots:** Helps visually identify when a model starts to fail at reconstructing the input signal. Spikes in reconstruction error correspond to potential anomalies, box plots helps to identify a suitable threshold
+  **Latent Space Visualization (t-SNE / UMAP): ** Techniques like t-SNE and [UMAP](https://umap-learn.readthedocs.io/en/latest/) are used to project high-dimensional latent representations into 2D or 3D space. it shows Separation between normal and anomalous samples in the learned latent space. Whether the model forms tight clusters (normal) and separates out anomalies. In VAE with appropriate Beta value and max itteration of the algorithm it is possible to obtaine a smooth latent cluster for normal data.
+
   
 ## Future Work
 - Incorporation of temporal features
