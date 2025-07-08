@@ -56,7 +56,7 @@ Since autoencoders are trained on normal data, they learn to reconstruct it well
 
 ## Variational Autoencoder (VAE)
 A Variational Autoencoder (VAE) is a generative model that combines neural networks with probabilistic Bayesian inference. Unlike a standard autoencoder (which learns a deterministic latent representation), a VAE learns a probability distribution over the latent space.
-The Beta-VAE modifies the VAE by introducing a β hyperparameter to explicitly control the trade-off between latent disentanglement and reconstruction quality.
+The [Beta-VAE](https://arxiv.org/abs/2112.14278) modifies the VAE by introducing a β hyperparameter to explicitly control the trade-off between latent disentanglement and reconstruction quality.
 
 **Standard VAE:** Balances reconstruction loss and KL-divergence (which regularizes the latent space).
 **Beta-VAE:** Strengthens the effect of KL-divergence by scaling it with β (β > 1 enforces stronger regularization).
