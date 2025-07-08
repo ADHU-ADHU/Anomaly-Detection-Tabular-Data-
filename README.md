@@ -79,7 +79,9 @@ Evaluating anomaly detection models, especially in highly imbalanced settings (l
 - PRC-AUC (Precision-Recall Curve - Area Under Curve)
 
 **F1 score:** The F1 score is the harmonic mean of precision and recall, giving a single performance value that balances both. In predictive maintenance, false negatives (missed failures) are very costly, and false positives (unnecessary repairs) are undesirable. F1 balances both.
+
 **ROC-AUC (Receiver Operating Characteristic):** The ROC curve plots the True Positive Rate (TPR) vs. False Positive Rate (FPR) at various threshold levels. It gives a threshold-independent measure of separability between normal and anomalous data. AUC close to 1 means good separability. However, ROC-AUC can be overly optimistic on imbalanced datasets.
+
 **PRC-AUC (Precision-Recall Curve):** The Precision-Recall Curve focuses on the trade-off between precision and recall. In imbalanced datasets (many more normal than anomalous points), PRC is often more informative than ROC. It focuses on how well the model identifies rare events (anomalies), without being diluted by the majority class.
 
 Anomaly detection often involves computing a reconstruction error or latent space distance, and setting a threshold to flag anomalies. The threshold can be tuned using:
