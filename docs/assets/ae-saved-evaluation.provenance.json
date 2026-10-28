@@ -1,0 +1,35 @@
+{
+  "source_notebook": "Pytorch Autoencoders.ipynb",
+  "source_sha256": "9ea119f680a3a9fc604bba44c5cb4f3de3e40a6ebd00f9fb1fbc9a842cb7ce88",
+  "description": "Static rendering of exact stored Plotly trace coordinates; original AUC values retained from saved titles. No training, scores, or metrics were recomputed. Applies only to the Autoencoder notebook.",
+  "indices": "zero-based",
+  "traces": [
+    {
+      "cell_index": 34,
+      "output_index": 0,
+      "mime_type": "application/vnd.plotly.v1+json",
+      "trace_index": 0,
+      "name": "ROC Curve",
+      "points": 6646,
+      "saved_title": "ROC Curve (AUC = 0.9974)"
+    },
+    {
+      "cell_index": 34,
+      "output_index": 0,
+      "mime_type": "application/vnd.plotly.v1+json",
+      "trace_index": 1,
+      "name": "Chance reference",
+      "points": 2,
+      "saved_title": "ROC Curve (AUC = 0.9974)"
+    },
+    {
+      "cell_index": 34,
+      "output_index": 1,
+      "mime_type": "application/vnd.plotly.v1+json",
+      "trace_index": 0,
+      "name": "PR Curve",
+      "points": 184364,
+      "saved_title": "Precision-Recall Curve (AUC = 0.9872)"
+    }
+  ]
+}

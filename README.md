@@ -1,116 +1,133 @@
-# Predictive Maintenance with Deep Anomaly Detection
+# GANomaly for Tabular Anomaly Detection
 
-This work is course project of the standalone masters course Machine learning for Predictive Maintenance 
+**Learning normal sensor behaviour for predictive maintenance.** A PyTorch adaptation of GANomaly for 10-feature industrial sensor observations, with Autoencoder and β-VAE baselines.
 
-## Project Description
-Implementation of deep learning models for anomaly detection in industrial equipment using the [Aramis Challenge dataset](https://aramis3d.com/index.php/innovation-challenges/). Developed Autoencoder, Variational Autoencoder (β-VAE), and GANomaly architectures to identify component failure.
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)
+![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=flat-square&logo=jupyter&logoColor=white)
+![Input](https://img.shields.io/badge/Input-10_sensor_features-0F766E?style=flat-square)
+![Training](https://img.shields.io/badge/Training-normal_samples-2563EB?style=flat-square)
 
-## Key Features
-- Three distinct deep learning approaches for anomaly detection
-- Specialized β-VAE variants addressing latent collapse
-- Adaptation of GANomaly (image-based) to tabular sensor data
-- Comprehensive evaluation with ROC/PRC
+[Architecture](#architecture) · [Notebooks](#explore-the-notebooks) · [Run locally](#run-locally) · [Evaluation](#evaluation-and-saved-results)
 
-## Data Description and Task
-The dataset used in this notebook is loaded from a MATLAB file (train.mat) and contains trajectory data labeled as normal or anomalous. Each entry in the dataset represents a system with multiple trajectories, where each trajectory is a 10-dimensional time series of length 1000. The labels (0 for normal and 1 for anomalous) indicate whether a given time step in the trajectory is anomalous. The dataset contains 200 such systems, each with 4 trajectories.
+## Architecture
 
-### Data Manipulation:
+[![Tabular GANomaly architecture: input, first encoder, decoder, second encoder, discriminator and anomaly scores](docs/assets/ganomaly-tabular-architecture.svg)](docs/assets/ganomaly-tabular-architecture.svg)
 
-**Loading Data:** The data is loaded using scipy.io.loadmat, which reveals a structure with keys like Train_data.
-**Extracting Trajectories and Labels:** For each system, the trajectories and corresponding labels are extracted. The trajectories are shaped as (10, 1000), and the labels are binary arrays of length 1000.
-**Separating Normal and Anomalous Data:** The data is split into normal (label == 0) and anomalous (label == 1) samples. The normal data is transposed to shape (N_normal, 10), and the anomalous data is similarly processed.
-**Train-Test Split:** The normal data is split into training (80%) and testing (20%) sets.
-**Scaling:** The data is scaled using MinMaxScaler to the range [-1, 1] to ensure consistent input for the neural network.
+*The architecture implemented in the GANomaly notebook. Open the diagram for the full-size view.*
 
-### Task:
-The task is anomaly detection, where the goal is to train a model to distinguish between normal and anomalous trajectories, while training only with the normal data. The project focuses on predicting the first entry time into abnormal states for each of the four components in 50 test systems, using sensor data converted into a tabular format.
+The model learns to reconstruct normal sensor observations, then compares the original and reconstructed observations in both **input space** and **latent space**. Larger reconstruction or latent mismatch provides an anomaly signal.
 
-In a typical industrial setting, the available quantity of good/normal data is quite often numerous than fault / anomaly data, hence a classification model would not be the most relaibale as it would be biased toward the majority trained data, moreover if may still output a predection for a data sample it was not trained on. 
+| Component | Layer widths | Role |
+| --- | --- | --- |
+| First encoder, E₁ | `10 → 64 → 32 → 16 → 8` | Compress an observation into an 8-dimensional latent vector |
+| Decoder | `8 → 16 → 32 → 64 → 10` | Reconstruct the sensor observation |
+| Second encoder, E₂ | `10 → 256 → 128 → 64 → 32 → 8` | Encode the reconstruction for latent comparison |
+| Discriminator | `10 → 32 → 16 → 1` | Distinguish real normal observations from reconstructions during training |
 
-## Models Implemented
-1. **Autoencoder** - Baseline reconstruction-based anomaly detection
-2. **β-VAE** - Two variants focusing on reconstruction vs KL divergence
-3. **GANomaly** - Adversarial approach with latent space comparison
+This is a **GANomaly-inspired tabular MLP adaptation** of the [original image-based method](https://arxiv.org/abs/1805.06725). The two encoders have different architectures. Training uses adversarial BCE and reconstruction L1 for the encoder–decoder, then fits the second encoder separately using latent MSE and detached encoder–decoder outputs. See the [architecture notes](docs/architecture.md) for activations, loss weights and the exact training flow.
 
-## Autoencoders
-An autoencoder is a type of neural network that learns to compress (encode) input data into a lower-dimensional latent space and then reconstruct (decode) it back to the original form. It consists of two main parts:
-1. **Encoder:** Reduces input data into a compact latent representation.
-2. **Decoder:** Reconstructs the original data from the latent representation.
+### How an observation becomes an anomaly score
 
-Autoencoders are trained to minimize reconstruction error (e.g., Mean Squared Error) between input and output, forcing them to learn efficient representations of normal data.
-Since autoencoders are trained on normal data, they learn to reconstruct it well but perform poorly on anomalous data. Anomaly detection works as follows:
-- Train the autoencoder only on normal data.
-- Compute the reconstruction error for new data.
-- If the error exceeds a threshold, classify the sample as an anomaly.
+```text
+z     = E₁(x)
+x_hat = Decoder(z)
+z_hat = E₂(x_hat)
 
-### Advantages:
-   - Unsupervised (no labeled anomalies needed).
-   - Works well when anomalies are rare.
+reconstruction_score = mean(abs(x - x_hat))
+latent_score         = mean((z - z_hat)²)
+combined_score       = reconstruction_score + latent_score
+```
 
-### Limitations:
-   - May struggle if anomalies are too similar to normal data.
-   - Sensitive to the choice of threshold.
+The notebook evaluates **latent-only** and **combined** scores. It also computes the discriminator output separately; that output is not included in the combined score.
 
-## Variational Autoencoder (VAE)
-A Variational Autoencoder (VAE) is a generative model that combines neural networks with probabilistic Bayesian inference. Unlike a standard autoencoder (which learns a deterministic latent representation), a VAE learns a probability distribution over the latent space.
-The [Beta-VAE](https://arxiv.org/abs/2112.14278) modifies the VAE by introducing a β hyperparameter to explicitly control the trade-off between latent disentanglement and reconstruction quality.
+## What the project explores
 
-**Standard VAE:** Balances reconstruction loss and KL-divergence (which regularizes the latent space).
-**Beta-VAE:** Strengthens the effect of KL-divergence by scaling it with β (β > 1 enforces stronger regularization).
+- **Normal-only model training:** learn from observations labeled normal, then score held-out normal observations and anomalies.
+- **Three neural approaches:** reconstruction with an Autoencoder, probabilistic latent modelling with a β-VAE, and adversarial reconstruction with the tabular GANomaly adaptation.
+- **Latent-space analysis:** t-SNE/UMAP visualizations and VAE experiments with Gaussian Mixture Models, Mahalanobis distance and One-Class SVM.
+- **Anomaly evaluation:** ROC and precision–recall curves, F1-based threshold exploration, and reconstruction/latent score distributions.
 
-Like standard autoencoders, anomalies have higher reconstruction errors. Anomalies may lie in low-probability regions of the latent distribution, further the latent space can be explored to detect anomalies. In this projects the latent space of the normal data where trained to fit GMM, KDE, mahanalobis distance and One class -SVM.
+## Explore the notebooks
 
-## [GANomaly](https://arxiv.org/abs/1805.06725): GAN-Based Anomaly Detection
-GANomaly is a Generative Adversarial Network (GAN) variant designed for anomaly detection. It consists of:
+| Notebook | What to explore |
+| --- | --- |
+| [Tabular GANomaly](Pytorch%20%20GANomaly_nooutput.ipynb) | Encoder–decoder–encoder architecture, adversarial training, checkpointing and latent/combined anomaly scores |
+| [Autoencoder baseline](Pytorch%20Autoencoders.ipynb) | MSE reconstruction baseline, saved training outputs and evaluation curves |
+| [β-VAE experiments](Pytorch%20Variational%20Autoencoders_noutput.ipynb) | Reconstruction/KL trade-offs, latent visualizations and statistical novelty detectors |
 
-**Generator:** This an typical autoencoder, where the encoder Encodes input into latent space and the decoder resonctructs reconstructs it.
+The notebooks retain their original filenames and implementation. GANomaly is the main architectural focus of this overview; the other notebooks provide complementary experiments.
 
-**Discriminator:** Tries to distinguish between real and reconstructed data.
+## Data and preprocessing
 
-**Encoder:** This second encoder maps the reconstructed data back to latent space (used for anomaly scoring).
+The project uses the [ARAMIS degradation challenge](https://aramis3d.com/wp-content/uploads/2022/07/Aramis-Challenge.pdf), which simulates interacting industrial components monitored by 10 sensor signals. Its labeled development data contains 200 systems with four components per system.
 
-The model used in this project is addapted for training tabular data
+The notebooks load **`train.mat`**, extract `Train_data`, and turn each trajectory time step into a **10-feature tabular row**:
 
+```text
+MATLAB trajectories + labels
+          ↓
+Normal rows (label 0) ──→ 80% training / 20% held-out normal rows
+Anomalous rows (label 1) ───────────────────→ anomaly evaluation
+          ↓
+MinMaxScaler [-1, 1], fitted on normal training rows
+          ↓
+Train models → compute anomaly scores → inspect ROC / PR / F1
+```
 
-## 📈 Model Evaluation
-Evaluating anomaly detection models, especially in highly imbalanced settings (like predictive maintenance), requires more than just accuracy. This project uses:
-- F1 Score
-- ROC-AUC (Receiver Operating Characteristic - Area Under Curve)
-- PRC-AUC (Precision-Recall Curve - Area Under Curve)
+The implemented task is observation-level anomaly detection. The split is by row, so related observations from one trajectory can occur in both training and evaluation. System-level validation and temporal onset detection are useful next steps.
 
-**F1 score:** The F1 score is the harmonic mean of precision and recall, giving a single performance value that balances both. In predictive maintenance, false negatives (missed failures) are very costly, and false positives (unnecessary repairs) are undesirable. F1 balances both.
+## Evaluation and saved results
 
-**ROC-AUC (Receiver Operating Characteristic):** The ROC curve plots the True Positive Rate (TPR) vs. False Positive Rate (FPR) at various threshold levels. It gives a threshold-independent measure of separability between normal and anomalous data. AUC close to 1 means good separability. However, ROC-AUC can be overly optimistic on imbalanced datasets.
+The [Autoencoder notebook](Pytorch%20Autoencoders.ipynb) preserves a historical run with these saved outputs:
 
-**PRC-AUC (Precision-Recall Curve):** The Precision-Recall Curve focuses on the trade-off between precision and recall. In imbalanced datasets (many more normal than anomalous points), PRC is often more informative than ROC. It focuses on how well the model identifies rare events (anomalies), without being diluted by the majority class.
+| ROC-AUC | PR curve AUC | F1 |
+| :---: | :---: | :---: |
+| **0.9974** | **0.9872** | **0.9466** |
 
-Anomaly detection often involves computing a reconstruction error or latent space distance, and setting a threshold to flag anomalies. The threshold can be tuned using:
-- ROC or PRC curves
-- F1-maximization
-- Percentile of reconstruction errors from validation data
+These values belong to the **Autoencoder baseline**. The GANomaly and β-VAE notebooks were committed without saved execution outputs, so this repository does not establish a numerical ranking between the three models. F1 uses a threshold selected on the same labeled evaluation samples; use separate calibration data for an independent final assessment.
 
-## Visualization & Interpretability
-  Visualization is essential in this project for:
-  - Exploring the latent space learned by models
-  - Analyzing how well reconstructions match inputs
-  - Understanding where and how anomalies are detected
-  - Evaluating performance through ROC/PR curves
- 
-  **Reconstruction Error Plots:** Helps visually identify when a model starts to fail at reconstructing the input signal. Spikes in reconstruction error correspond to potential anomalies, box plots helps to identify a suitable threshold
-  **Latent Space Visualization (t-SNE / UMAP): ** Techniques like t-SNE and [UMAP](https://umap-learn.readthedocs.io/en/latest/) are used to project high-dimensional latent representations into 2D or 3D space. it shows Separation between normal and anomalous samples in the learned latent space. Whether the model forms tight clusters (normal) and separates out anomalies. In VAE with appropriate Beta value and max itteration of the algorithm it is possible to obtaine a smooth latent cluster for normal data.
+[![Saved Autoencoder ROC and precision–recall curves](docs/assets/ae-saved-evaluation.svg)](docs/assets/ae-saved-evaluation.svg)
 
-  Due to the large size of the data only a selected amount were sampled out of Normal train, Normal test and anomaly data for visualisation
+*Autoencoder baseline: a static rendering of the saved notebook's ROC/PR trace coordinates and AUC labels. [Figure provenance](docs/assets/ae-saved-evaluation.provenance.json).*
 
-  ![newplot](https://github.com/user-attachments/assets/20bc1c21-c028-468c-ad1d-5999261b287c)
+<details>
+<summary>Additional project latent-space visualizations</summary>
 
-  ![newplot1](https://github.com/user-attachments/assets/c53020e1-d695-4ff1-9e2c-14161fabd3ce)
+The original project overview included these exploratory views. They are retained here as visual context, separately from the saved Autoencoder metrics above.
 
+![Project latent-space visualization](https://github.com/user-attachments/assets/20bc1c21-c028-468c-ad1d-5999261b287c)
 
+![Additional project latent-space visualization](https://github.com/user-attachments/assets/c53020e1-d695-4ff1-9e2c-14161fabd3ce)
 
-  
-## Future Work
-- Incorporation of temporal features
-- Hyperparameter optimization
-- Develop explainable AI methods to interpret model decisions
-- Explore reinforcement learning for optimal maintenance scheduling
-- Extend to larger systems with more complex component interactions
+</details>
+
+## Run locally
+
+```bash
+git clone https://github.com/ADHU-ADHU/Anomaly-Detection-Tabular-Data-.git
+cd Anomaly-Detection-Tabular-Data-
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install torch numpy scipy pandas scikit-learn matplotlib plotly tqdm seaborn umap-learn jupyterlab
+jupyter lab
+```
+
+On Windows, activate the environment with `.venv\Scripts\activate`.
+
+Place your copy of **`train.mat` beside the notebooks**, then open the GANomaly notebook and run its cells in order. The notebooks select CUDA when available and otherwise use CPU. The dataset and trained checkpoints are not included in this repository.
+
+The installation command lists the imported packages; the original dependency versions are not pinned. The [reproduction guide](docs/reproducibility.md) covers dataset structure, checkpoint handling and evaluation details.
+
+## Further work
+
+- Split and validate by system or trajectory, with a separate threshold-calibration set.
+- Compare all models under matched data splits, seeds and training budgets.
+- Explore temporal windows and abnormal-state onset detection.
+- Study joint latent regularization and the relative weighting of reconstruction and latent scores.
+
+## References
+
+- Akçay, Atapour-Abarghouei and Breckon — [GANomaly: Semi-Supervised Anomaly Detection via Adversarial Training](https://arxiv.org/abs/1805.06725), ACCV 2018.
+- Cannarile et al. — [The Aramis Challenge: Prognostics and Health Management in Evolving Environments](https://aramis3d.com/wp-content/uploads/2022/07/Aramis-Challenge.pdf).
+
+Developed by **[Adhithya Palanisamy Chandrasekaran](https://github.com/ADHU-ADHU)**.

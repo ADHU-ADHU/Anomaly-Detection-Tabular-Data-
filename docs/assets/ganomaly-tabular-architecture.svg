@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="790" viewBox="0 0 1200 790" role="img" aria-labelledby="diagram-title diagram-desc">
+  <title id="diagram-title">Tabular GANomaly architecture implemented in this repository</title>
+  <desc id="diagram-desc">A 10-feature input passes through an encoder with widths 10, 64, 32, 16, 8; an 8-dimensional latent vector; a decoder with widths 8, 16, 32, 64, 10; a 10-feature reconstruction; and a second encoder with widths 10, 256, 128, 64, 32, 8, yielding a second 8-dimensional latent vector. A shared discriminator with widths 10, 32, 16, 1 receives the original and reconstructed rows for adversarial training. The combined anomaly score is mean absolute reconstruction error plus mean squared latent error. The second encoder is trained separately with detached generator outputs.</desc>
+  <defs>
+    <marker id="arrow-navy" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/></marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c76a17"/></marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; }
+      .title { font-size: 32px; font-weight: 700; fill: #10243a; }
+      .subtitle { font-size: 18px; fill: #526174; }
+      .section { font-size: 14px; font-weight: 700; letter-spacing: 1.7px; fill: #64748b; }
+      .card-title { font-size: 21px; font-weight: 700; fill: #10243a; }
+      .widths { font-size: 17px; font-weight: 700; fill: #163f4a; }
+      .note { font-size: 15px; fill: #526174; }
+      .tensor { font-size: 23px; font-weight: 700; fill: #10243a; }
+      .tensor-size { font-size: 15px; fill: #526174; }
+      .flow { fill: none; stroke: #475569; stroke-width: 2.2; marker-end: url(#arrow-navy); }
+      .training { fill: none; stroke: #c76a17; stroke-width: 2; stroke-dasharray: 7 6; marker-end: url(#arrow-orange); }
+    </style>
+  </defs>
+
+  <rect width="1200" height="790" rx="20" fill="#f8fafc"/>
+  <rect x="1" y="1" width="1198" height="788" rx="19" fill="none" stroke="#e2e8f0"/>
+  <text x="48" y="61" class="title">GANomaly for tabular anomaly detection</text>
+  <text x="48" y="94" class="subtitle">Repository implementation · fully connected encoder–decoder–encoder</text>
+  <text x="48" y="141" class="section">INFERENCE PATH</text>
+
+  <!-- Solid arrows show the forward path used to compute anomaly scores. -->
+  <path d="M 120 243 H 150" class="flow"/>
+  <path d="M 350 243 H 376" class="flow"/>
+  <path d="M 446 243 H 480" class="flow"/>
+  <path d="M 680 243 H 707" class="flow"/>
+  <path d="M 787 243 H 820" class="flow"/>
+  <path d="M 1040 243 H 1078" class="flow"/>
+
+  <rect x="40" y="207" width="80" height="72" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="80" y="237" text-anchor="middle" class="tensor">x</text>
+  <text x="80" y="260" text-anchor="middle" class="tensor-size">10 features</text>
+
+  <rect x="150" y="169" width="200" height="151" rx="15" fill="#eaf8f5" stroke="#39a28f" stroke-width="1.7"/>
+  <rect x="150" y="169" width="200" height="7" rx="3" fill="#178570"/>
+  <text x="170" y="205" class="card-title">Encoder E₁</text>
+  <text x="170" y="240" class="widths">10 → 64 → 32</text>
+  <text x="170" y="265" class="widths">→ 16 → 8</text>
+  <text x="170" y="299" class="note">LeakyReLU · BatchNorm</text>
+
+  <rect x="376" y="207" width="70" height="72" rx="12" fill="#ffffff" stroke="#39a28f" stroke-width="1.5"/>
+  <text x="411" y="237" text-anchor="middle" class="tensor">z</text>
+  <text x="411" y="260" text-anchor="middle" class="tensor-size">8 dims</text>
+
+  <rect x="480" y="169" width="200" height="151" rx="15" fill="#eaf8f5" stroke="#39a28f" stroke-width="1.7"/>
+  <rect x="480" y="169" width="200" height="7" rx="3" fill="#178570"/>
+  <text x="500" y="205" class="card-title">Decoder</text>
+  <text x="500" y="240" class="widths">8 → 16 → 32</text>
+  <text x="500" y="265" class="widths">→ 64 → 10</text>
+  <text x="500" y="292" class="note">LeakyReLU · BatchNorm</text>
+  <text x="500" y="311" class="note">Tanh output</text>
+
+  <rect x="707" y="207" width="80" height="72" rx="12" fill="#ffffff" stroke="#39a28f" stroke-width="1.5"/>
+  <text x="747" y="237" text-anchor="middle" class="tensor">x̂</text>
+  <text x="747" y="260" text-anchor="middle" class="tensor-size">10 features</text>
+
+  <rect x="820" y="169" width="220" height="151" rx="15" fill="#edf4ff" stroke="#7096d3" stroke-width="1.7"/>
+  <rect x="820" y="169" width="220" height="7" rx="3" fill="#416fab"/>
+  <text x="840" y="205" class="card-title">Encoder E₂</text>
+  <text x="840" y="240" class="widths">10 → 256 → 128</text>
+  <text x="840" y="265" class="widths">→ 64 → 32 → 8</text>
+  <text x="840" y="292" class="note">LeakyReLU hidden layers</text>
+  <text x="840" y="311" class="note">Linear latent output</text>
+
+  <rect x="1078" y="207" width="82" height="72" rx="12" fill="#ffffff" stroke="#7096d3" stroke-width="1.5"/>
+  <text x="1119" y="237" text-anchor="middle" class="tensor">ẑ</text>
+  <text x="1119" y="260" text-anchor="middle" class="tensor-size">8 dims</text>
+
+  <!-- The same discriminator receives original and reconstructed rows. -->
+  <path d="M 80 279 V 357 H 145 V 410" class="training"/>
+  <path d="M 747 279 V 378 H 275 V 410" class="training"/>
+  <text x="94" y="345" font-size="15" fill="#a65313">Original row</text>
+  <text x="576" y="364" font-size="15" fill="#a65313">Reconstructed row</text>
+
+  <rect x="48" y="410" width="302" height="166" rx="15" fill="#fff5e9" stroke="#dda461" stroke-width="1.5"/>
+  <text x="70" y="441" font-size="14" font-weight="700" letter-spacing="1.1" fill="#a65313">SHARED DISCRIMINATOR</text>
+  <text x="70" y="474" class="card-title">D: real vs. reconstructed</text>
+  <text x="70" y="506" class="widths">10 → 32 → 16 → 1</text>
+  <text x="70" y="536" class="note">LeakyReLU · Dropout 0.3</text>
+  <text x="70" y="559" class="note">Sigmoid output · BCE training</text>
+  <text x="64" y="610" class="note">Dashed paths: adversarial training.</text>
+  <text x="64" y="634" class="note">D is excluded from the combined score.</text>
+
+  <text x="398" y="412" class="section">ANOMALY SCORING</text>
+  <rect x="398" y="432" width="353" height="144" rx="15" fill="#ffffff" stroke="#b9d9d1" stroke-width="1.5"/>
+  <text x="420" y="468" class="card-title">Reconstruction error</text>
+  <text x="420" y="504" font-size="20" fill="#15705f">mean |x − x̂|</text>
+  <text x="420" y="541" class="note">L1 across the 10 input features</text>
+  <rect x="775" y="432" width="377" height="144" rx="15" fill="#ffffff" stroke="#b6cbea" stroke-width="1.5"/>
+  <text x="797" y="468" class="card-title">Latent consistency error</text>
+  <text x="797" y="504" font-size="20" fill="#416fab">mean (z − ẑ)²</text>
+  <text x="797" y="541" class="note">MSE across the 8 latent dimensions</text>
+
+  <path d="M 575 576 V 600" class="flow"/>
+  <path d="M 963 576 V 600" class="flow"/>
+  <rect x="398" y="600" width="754" height="85" rx="15" fill="#102c47"/>
+  <text x="775" y="635" text-anchor="middle" font-size="23" font-weight="700" fill="#ffffff">Combined score = reconstruction error + latent error</text>
+  <text x="775" y="662" text-anchor="middle" font-size="17" fill="#d6e3f0">Higher scores indicate stronger deviation from learned normal patterns.</text>
+
+  <line x1="48" y1="717" x2="1152" y2="717" stroke="#dce3ec"/>
+  <text x="48" y="745" class="note">Training: E₁ + decoder use adversarial BCE + 50 × L1; E₂ uses a separate latent-MSE optimizer with detached generator outputs.</text>
+  <text x="48" y="770" font-size="14" fill="#64748b">All hidden LeakyReLU slopes: 0.2. BatchNorm applies to E₁/decoder hidden layers. Widths show this notebook’s MLP adaptation.</text>
+</svg>
